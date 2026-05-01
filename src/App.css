@@ -226,8 +226,8 @@ body {
 }
 
 .control-btn.start  { background: #7ef0e8; color: #000; }
-.control-btn.pause  { background: #f0c87e; color: #000; }
-.control-btn.reset  { background: rgba(255,255,255,0.2); color: #fff; }
+.control-btn.pause  { background: #E71E80; color: #fff; }
+.control-btn.reset  { background: #303437; color: #fff; }
 .control-btn:hover  { opacity: 0.85; }
 
 .pomodoro-count {
@@ -341,11 +341,11 @@ body {
 }
 
 .timer-card.break-mode {
-  border-color: rgba(240, 200, 126, 0.4);
+  border-color: #E71E80;
 }
 
 .timer-card.break-mode .time-display {
-  color: #f0c87e;
+  color: #E71E80;
 }
 
 .mode-label {

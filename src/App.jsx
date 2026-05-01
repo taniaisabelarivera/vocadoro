@@ -1,15 +1,7 @@
-/*
-TIMER NEEDED FOR MOST OF THIS STUFF TO WORK!!!
-Suggestions:
-Make sure to run this code and fix any bugs, because my laptop
-is fried and my mac is not set up for programming. I had to make
-all of this on onecompiler and it was hell. Very sorry.
+//I think the pomodoro completed thing only works when the timer 
+// finishes and not when its checked off? 
 
-Try implementing a study mode and break mode! Part of this was made with that in mind.
-Happy coding? Idk
-*/
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Mascot from './components/Mascot'
 import TodoList from './components/TodoList'
 import Notepad from './components/Notepad'
@@ -54,6 +46,11 @@ export default function App() {
   const [background, setBackground] = useState('library')
   const [currentSprite, setCurrentSprite] = useState('baseline')
   const [dialogue, setDialogue] = useState(DIALOGUE.idle[0])
+  const [mode, setMode] = useState('study')
+  const [studyDuration, setStudyDuration] = useState(25)
+  const [breakDuration, setBreakDuration] = useState(5)
+  const [timeLeft, setTimeLeft] = useState(studyDuration * 60)
+  const [timerActive, setTimerActive] = useState(false)
   const [pomodoroCount, setPomodoroCount] = useState(0)
 
   function randomFrom(arr) {
@@ -64,7 +61,50 @@ export default function App() {
     setCurrentSprite('baseline')
     setDialogue(randomFrom(DIALOGUE.idle))
   }
-  
+
+  function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60)
+    const secondsLeft = seconds % 60
+    return `${String(minutes).padStart(2, '0')}:${String(secondsLeft).padStart(2, '0')}`
+  }
+
+  function switchMode(nextMode) {
+    setMode(nextMode)
+    setTimeLeft((nextMode === 'study' ? studyDuration : breakDuration) * 60)
+    setDialogue(nextMode === 'study' ? randomFrom(DIALOGUE.working) : randomFrom(DIALOGUE.breakTime))
+    setCurrentSprite(nextMode === 'study' ? 'motivated' : 'baseline')
+    setTimerActive(false)
+  }
+
+  useEffect(() => {
+    if (!timerActive) return
+
+    const interval = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          if (mode === 'study') {
+            handleSessionEnd()
+          }
+
+          const nextMode = mode === 'study' ? 'break' : 'study'
+          setMode(nextMode)
+          setDialogue(nextMode === 'study' ? randomFrom(DIALOGUE.working) : randomFrom(DIALOGUE.breakTime))
+          setCurrentSprite(nextMode === 'study' ? 'motivated' : 'baseline')
+          return (nextMode === 'study' ? studyDuration : breakDuration) * 60
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [timerActive, mode, studyDuration, breakDuration])
+
+  useEffect(() => {
+    if (!timerActive) {
+      setTimeLeft((mode === 'study' ? studyDuration : breakDuration) * 60)
+    }
+  }, [mode, studyDuration, breakDuration, timerActive])
+
   function handleSessionEnd() {
     const newCount = pomodoroCount + 1
     setPomodoroCount(newCount)
@@ -103,6 +143,53 @@ export default function App() {
         </div>
 
         <div className="center-col">
+          <div className={`timer-card ${mode === 'break' ? 'break-mode' : ''}`}>
+            <div className="mode-label">{mode === 'study' ? 'Study Mode' : 'Break Mode'}</div>
+            <div className="preset-row">
+              <button
+                className={mode === 'study' ? 'preset-btn active' : 'preset-btn'}
+                onClick={() => switchMode('study')}
+              >
+                Study
+              </button>
+              <button
+                className={mode === 'break' ? 'preset-btn active' : 'preset-btn'}
+                onClick={() => switchMode('break')}
+              >
+                Break
+              </button>
+            </div>
+            <div className="time-display">{formatTime(timeLeft)}</div>
+            <div className="control-row">
+              <button className="control-btn start" onClick={() => setTimerActive(true)}>Start</button>
+              <button className="control-btn pause" onClick={() => setTimerActive(false)}>Pause</button>
+              <button
+                className="control-btn reset"
+                onClick={() => {
+                  setTimerActive(false)
+                  setTimeLeft((mode === 'study' ? studyDuration : breakDuration) * 60)
+                }}
+              >
+                Reset
+              </button>
+            </div>
+            <div className="custom-row">
+              <input
+                type="number"
+                min="1"
+                value={studyDuration}
+                onChange={e => setStudyDuration(Number(e.target.value) || 1)}
+                title="Study length in minutes"
+              />
+              <input
+                type="number"
+                min="1"
+                value={breakDuration}
+                onChange={e => setBreakDuration(Number(e.target.value) || 1)}
+                title="Break length in minutes"
+              />
+            </div>
+          </div>
           <Mascot
             sprites={SPRITES}
             currentSprite={currentSprite}
