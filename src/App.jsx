@@ -1,6 +1,3 @@
-//I think the pomodoro completed thing only works when the timer 
-// finishes and not when its checked off? 
-
 import { useState, useEffect } from 'react'
 import Mascot from './components/Mascot'
 import TodoList from './components/TodoList'
@@ -45,6 +42,7 @@ const DIALOGUE = {
 
 export default function App() {
   const [background, setBackground] = useState('library')
+  const [nextBackground, setNextBackground] = useState(null)
   const [currentSprite, setCurrentSprite] = useState('baseline')
   const [dialogue, setDialogue] = useState(DIALOGUE.idle[0])
   const [mode, setMode] = useState('study')
@@ -56,6 +54,14 @@ export default function App() {
 
   function randomFrom(arr) {
     return arr[Math.floor(Math.random() * arr.length)]
+  }
+
+  function fadeToBackground(newBg) {
+    setNextBackground(newBg)
+    setTimeout(() => {
+      setBackground(newBg)
+      setNextBackground(null)
+    }, 500)
   }
 
   function updateMascot() {
@@ -125,13 +131,19 @@ export default function App() {
       style={{ backgroundImage: `url(${BACKGROUNDS[background]})` }}
     >
       <div className="overlay" />
+      {nextBackground && (
+        <div
+          className="background-fade"
+          style={{ backgroundImage: `url(${BACKGROUNDS[nextBackground]})` }}
+        />
+      )}
 
       <div className="bg-selector">
         {Object.keys(BACKGROUNDS).map(name => (
           <button
             key={name}
             className={background === name ? 'active' : ''}
-            onClick={() => setBackground(name)}
+            onClick={() => fadeToBackground(name)}
           >
             {name}
           </button>
