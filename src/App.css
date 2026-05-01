@@ -340,6 +340,62 @@ body {
   color: rgba(255,255,255,0.3);
 }
 
+.music-panel {
+  margin-top: 16px;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+.music-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.music-input-row input[type="text"] {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.music-input-row button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(126, 240, 232, 0.35);
+  color: #fff;
+  cursor: pointer;
+}
+
+.music-input-row button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.music-player {
+  flex: 1;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.music-error {
+  color: #ff8cc6;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+}
+
+.music-title {
+  margin-top: 10px;
+  color: rgba(255,255,255,0.8);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
 .timer-card.break-mode {
   border-color: #E71E80;
 }

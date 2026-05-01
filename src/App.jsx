@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import Mascot from './components/Mascot'
 import TodoList from './components/TodoList'
 import Notepad from './components/Notepad'
+import MusicPlayer from './components/MusicPlayer'
 import bedroomBg from './assets/backgrounds/bedroom.jpg'
 import cafeBg from './assets/backgrounds/cafe.jpg'
 import libraryBg from './assets/backgrounds/library.jpg'
@@ -103,7 +104,7 @@ export default function App() {
     if (!timerActive) {
       setTimeLeft((mode === 'study' ? studyDuration : breakDuration) * 60)
     }
-  }, [mode, studyDuration, breakDuration, timerActive])
+  }, [mode, studyDuration, breakDuration])
 
   function handleSessionEnd() {
     const newCount = pomodoroCount + 1
@@ -200,6 +201,7 @@ export default function App() {
 
         <div className="right-col">
           <Notepad />
+          <MusicPlayer />
         </div>
       </div>
     </div>
