@@ -1,5 +1,5 @@
 import { useState } from 'react'
-
+//create an .env file with VITE_YOUTUBE_API_KEY=insertAPI
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
 
 function getPlaylistId(value) {
@@ -61,9 +61,22 @@ export default function MusicPlayer() {
         throw new Error('Unable to load playlist video.')
       }
 
+      let playlistName = ''
+      try {
+        const playlistResponse = await fetch(
+          `https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${encodeURIComponent(id)}&key=${YOUTUBE_API_KEY}`
+        )
+        const playlistData = await playlistResponse.json()
+        if (playlistResponse.ok && playlistData.items?.length > 0) {
+          playlistName = playlistData.items[0].snippet?.title || ''
+        }
+      } catch {
+        playlistName = ''
+      }
+
       setPlaylistId(id)
       setVideoId(video)
-      setPlaylistTitle(title)
+      setPlaylistTitle(playlistName || title)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load playlist.')
     } finally {
@@ -77,7 +90,7 @@ export default function MusicPlayer() {
       <div className="music-input-row">
         <input
           type="text"
-          placeholder="YouTube playlist ID or URL"
+          placeholder="Add YouTube playlist ID or URL"
           value={playlistInput}
           onChange={e => setPlaylistInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && loadPlaylist()}
@@ -100,7 +113,7 @@ export default function MusicPlayer() {
           />
         </div>
       )}
-      {playlistTitle && <p className="music-title">Playing from playlist: {playlistTitle}</p>}
+      {playlistTitle && <p className="music-title">Playing from Playlist: {playlistTitle}</p>}
     </div>
   )
 }
