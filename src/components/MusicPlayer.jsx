@@ -142,7 +142,7 @@ export default function MusicPlayer() {
       <div className="music-input-row">
         <input
           type="text"
-          placeholder="Add YouTube video or playlist ID or URL"
+          placeholder="Add YouTube Video or Playlist ID or URL"
           value={playlistInput}
           onChange={e => setPlaylistInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && loadMedia()}
