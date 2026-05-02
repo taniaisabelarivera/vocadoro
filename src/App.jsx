@@ -6,55 +6,91 @@ import MusicPlayer from './components/MusicPlayer'
 import bedroomBg from './assets/backgrounds/bedroom.jpg'
 import cafeBg from './assets/backgrounds/cafe.jpg'
 import libraryBg from './assets/backgrounds/library.jpg'
-import mikuBaseline from './assets/miku/miku_baseline.png'
-import mikuConcerned from './assets/miku/miku_concerned.png'
-import mikuExcited from './assets/miku/miku_excited.png'
-import mikuMad from './assets/miku/miku_mad.png'
-import mikuMotivated from './assets/miku/miku_motivated.png'
-import mikuSleep from './assets/miku/miku_sleep.png'
-import mikuSurprised from './assets/miku/miku_surprised.png'
-import mikuTeasing from './assets/miku/miku_teasing.png'
+import iaSprite from './assets/ia.png'
+import lenSprite from './assets/len.png'
+import mikuSprite from './assets/miku.png'
+import oneSprite from './assets/one.png'
+import tetoSprite from './assets/teto.png'
 
-const SPRITES = {
-  baseline: mikuBaseline,
-  concerned: mikuConcerned,
-  excited: mikuExcited,
-  mad: mikuMad,
-  motivated: mikuMotivated,
-  sleep: mikuSleep,
-  surprised: mikuSurprised,
-  teasing: mikuTeasing,
+const CHARACTERS = {
+  miku: {
+    sprite: mikuSprite,
+    dialogue: {
+      idle:      "Here to study?",
+      working:   "You're doing great, keep it up!",
+      paused:    "Don't give up now!",
+      breakTime: "Break time! You earned it!",
+      taskDone:  "Task complete! You're amazing!",
+    }
+  },
+  ia: {
+    sprite: iaSprite,
+    dialogue: {
+      idle:      "Ready when you are.",
+      working:   "Stay focused, I believe in you!",
+      paused:    "Take your time, I'll be here.",
+      breakTime: "Nice work, take a breather!",
+      taskDone:  "Another one down!",
+    }
+  },
+  len: {
+    sprite: lenSprite,
+    dialogue: {
+      idle:      "Let's get to work!",
+      working:   "Keep going, you've got this!",
+      paused:    "Hurry back, we're not done yet!",
+      breakTime: "Rest up, you've earned it!",
+      taskDone:  "Yes! Nailed it!",
+    }
+  },
+  one: {
+    sprite: oneSprite,
+    dialogue: {
+      idle:      "Whenever you're ready...",
+      working:   "One step at a time!",
+      paused:    "Come back when you're ready.",
+      breakTime: "Good work, enjoy the break!",
+      taskDone:  "Look at you go!",
+    }
+  },
+  teto: {
+    sprite: tetoSprite,
+    dialogue: {
+      idle:      "Heheh, let's do this!",
+      working:   "No slacking, keep it up!",
+      paused:    "Oi, get back to work soon!",
+      breakTime: "Woohoo, break time!!",
+      taskDone:  "Crushed it! I knew you could!",
+    }
+  },
 }
 
 const BACKGROUNDS = {
   bedroom: bedroomBg,
-  cafe: cafeBg,
+  cafe:    cafeBg,
   library: libraryBg,
 }
 
-const DIALOGUE = {
-  idle:      ["Here to study?", "Pick a timer and let's go!", "Time is money. Time is study. Study, money."],
-  working:   ["You're doing great, keep it up!", "Stay focused!", "One step at a time!"],
-  paused:    ["Taking a little break? That's okay.", "Don't give up now!", "Come back when you're ready~"],
-  breakTime: ["Break time! You earned it!", "Rest up, you worked hard!", "Nice job finishing that session!"],
-  taskDone:  ["Task complete! You're amazing!", "One down, crushing it!", "Look at you go!!"],
-}
-
 export default function App() {
-  const [background, setBackground] = useState('library')
-  const [nextBackground, setNextBackground] = useState(null)
-  const [currentSprite, setCurrentSprite] = useState('baseline')
-  const [dialogue, setDialogue] = useState(DIALOGUE.idle[0])
-  const [mode, setMode] = useState('study')
-  const [studyDuration, setStudyDuration] = useState(25)
-  const [breakDuration, setBreakDuration] = useState(5)
-  const [timeLeft, setTimeLeft] = useState(studyDuration * 60)
-  const [timerActive, setTimerActive] = useState(false)
-  const [pomodoroCount, setPomodoroCount] = useState(0)
+  const [background, setBackground]           = useState('library')
+  const [nextBackground, setNextBackground]   = useState(null)
+  const [currentCharacter, setCurrentCharacter] = useState('miku')
+  const [dialogue, setDialogue]               = useState(CHARACTERS.miku.dialogue.idle)
+  const [mode, setMode]                       = useState('study')
+  const [studyDuration, setStudyDuration]     = useState(25)
+  const [breakDuration, setBreakDuration]     = useState(5)
+  const [timeLeft, setTimeLeft]               = useState(25 * 60)
+  const [timerActive, setTimerActive]         = useState(false)
+  const [pomodoroCount, setPomodoroCount]     = useState(0)
 
-  function randomFrom(arr) {
-    return arr[Math.floor(Math.random() * arr.length)]
-  }
+  // When the character changes, update dialogue to match current timer state
+  useEffect(() => {
+    const char = CHARACTERS[currentCharacter].dialogue
+    if (timerActive && mode === 'study')  setDialogue(char.working)
+    else if (timerActive && mode === 'break') setDialogue(char.breakTime)
+    else if (!timerActive && mode === 'study') setDialogue(char.idle)
+    else setDialogue(char.breakTime)
+  }, [currentCharacter])
 
   function fadeToBackground(newBg) {
     setNextBackground(newBg)
@@ -62,11 +98,6 @@ export default function App() {
       setBackground(newBg)
       setNextBackground(null)
     }, 500)
-  }
-
-  function updateMascot() {
-    setCurrentSprite('baseline')
-    setDialogue(randomFrom(DIALOGUE.idle))
   }
 
   function formatTime(seconds) {
@@ -78,8 +109,10 @@ export default function App() {
   function switchMode(nextMode) {
     setMode(nextMode)
     setTimeLeft((nextMode === 'study' ? studyDuration : breakDuration) * 60)
-    setDialogue(nextMode === 'study' ? randomFrom(DIALOGUE.working) : randomFrom(DIALOGUE.breakTime))
-    setCurrentSprite(nextMode === 'study' ? 'motivated' : 'baseline')
+    setDialogue(nextMode === 'study'
+      ? CHARACTERS[currentCharacter].dialogue.working
+      : CHARACTERS[currentCharacter].dialogue.breakTime
+    )
     setTimerActive(false)
   }
 
@@ -89,14 +122,13 @@ export default function App() {
     const interval = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          if (mode === 'study') {
-            handleSessionEnd()
-          }
-
+          if (mode === 'study') handleSessionEnd()
           const nextMode = mode === 'study' ? 'break' : 'study'
           setMode(nextMode)
-          setDialogue(nextMode === 'study' ? randomFrom(DIALOGUE.working) : randomFrom(DIALOGUE.breakTime))
-          setCurrentSprite(nextMode === 'study' ? 'motivated' : 'baseline')
+          setDialogue(nextMode === 'study'
+            ? CHARACTERS[currentCharacter].dialogue.working
+            : CHARACTERS[currentCharacter].dialogue.breakTime
+          )
           return (nextMode === 'study' ? studyDuration : breakDuration) * 60
         }
         return prev - 1
@@ -104,7 +136,7 @@ export default function App() {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [timerActive, mode, studyDuration, breakDuration])
+  }, [timerActive, mode, studyDuration, breakDuration, currentCharacter])
 
   useEffect(() => {
     if (!timerActive) {
@@ -113,16 +145,31 @@ export default function App() {
   }, [mode, studyDuration, breakDuration])
 
   function handleSessionEnd() {
-    const newCount = pomodoroCount + 1
-    setPomodoroCount(newCount)
-    setCurrentSprite('excited')
-    setDialogue(randomFrom(DIALOGUE.breakTime))
+    setPomodoroCount(prev => prev + 1)
+    setDialogue(CHARACTERS[currentCharacter].dialogue.breakTime)
   }
 
   function handleTaskComplete() {
-    setCurrentSprite('surprised')
-    setDialogue(randomFrom(DIALOGUE.taskDone))
-    setTimeout(() => updateMascot(), 3000)
+    setDialogue(CHARACTERS[currentCharacter].dialogue.taskDone)
+    setTimeout(() => {
+      setDialogue(CHARACTERS[currentCharacter].dialogue.idle)
+    }, 3000)
+  }
+
+  function handleStart() {
+    setTimerActive(true)
+    setDialogue(CHARACTERS[currentCharacter].dialogue.working)
+  }
+
+  function handlePause() {
+    setTimerActive(false)
+    setDialogue(CHARACTERS[currentCharacter].dialogue.paused)
+  }
+
+  function handleReset() {
+    setTimerActive(false)
+    setTimeLeft((mode === 'study' ? studyDuration : breakDuration) * 60)
+    setDialogue(CHARACTERS[currentCharacter].dialogue.idle)
   }
 
   return (
@@ -174,17 +221,9 @@ export default function App() {
             </div>
             <div className="time-display">{formatTime(timeLeft)}</div>
             <div className="control-row">
-              <button className="control-btn start" onClick={() => setTimerActive(true)}>Start</button>
-              <button className="control-btn pause" onClick={() => setTimerActive(false)}>Pause</button>
-              <button
-                className="control-btn reset"
-                onClick={() => {
-                  setTimerActive(false)
-                  setTimeLeft((mode === 'study' ? studyDuration : breakDuration) * 60)
-                }}
-              >
-                Reset
-              </button>
+              <button className="control-btn start" onClick={handleStart}>Start</button>
+              <button className="control-btn pause" onClick={handlePause}>Pause</button>
+              <button className="control-btn reset" onClick={handleReset}>Reset</button>
             </div>
             <div className="custom-row">
               <input
@@ -203,9 +242,21 @@ export default function App() {
               />
             </div>
           </div>
+
+          <div className="character-selector">
+            {Object.keys(CHARACTERS).map(name => (
+              <button
+                key={name}
+                className={currentCharacter === name ? 'active' : ''}
+                onClick={() => setCurrentCharacter(name)}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+
           <Mascot
-            sprites={SPRITES}
-            currentSprite={currentSprite}
+            sprite={CHARACTERS[currentCharacter].sprite}
             dialogue={dialogue}
           />
           <p className="pomodoro-count">Pomodoros completed: {pomodoroCount}</p>

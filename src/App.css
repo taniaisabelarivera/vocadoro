@@ -191,7 +191,6 @@ body::before {
   overflow: hidden;
 }
 
-/* Animated corner accent */
 .timer-card::before,
 .timer-card::after {
   content: '';
@@ -206,6 +205,7 @@ body::before {
 .timer-card::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
 .timer-card::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
 
+/* Glowing top-edge bar */
 .timer-card > *:first-child::before {
   content: '';
   position: absolute;
@@ -380,6 +380,35 @@ body::before {
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--text-dim);
+}
+
+.character-selector {
+  display: flex;
+  gap: 6px;
+}
+
+.character-selector button {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: rgba(0, 245, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 4px 12px;
+  border-radius: 2px;
+  cursor: crosshair;
+  transition: all 0.2s;
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+}
+
+.character-selector button.active,
+.character-selector button:hover {
+  background: var(--cyan-dim);
+  border-color: var(--cyan);
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+  box-shadow: 0 0 12px var(--cyan-glow);
 }
 
 .mascot-container {

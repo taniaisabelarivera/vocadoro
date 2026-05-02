@@ -1,13 +1,11 @@
-export default function Mascot({ sprites, currentSprite, dialogue }) {
+export default function Mascot({ sprite, dialogue }) {
   return (
     <div className="mascot-container">
-      {}
       <img
-        src={sprites[currentSprite]}
-        alt="Miku mascot"
+        src={sprite}
+        alt="mascot"
         className="mascot-img"
       />
-      {}
       <div className="dialogue-box">
         <p>{dialogue}</p>
       </div>
